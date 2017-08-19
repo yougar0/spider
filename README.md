@@ -1,5 +1,5 @@
 # Introduction
-A java web crawler based on vertx and rxjava.
+A java web crawler based on vertx.
 
 ## Features
 1.0.0 Version
@@ -8,6 +8,5 @@ A java web crawler based on vertx and rxjava.
 
 But with callback hell.
 
-2.0.0 Version
-* Avoid callback hell
-* With rxjava
+1.0.1 Version
+* Reduce memory use space

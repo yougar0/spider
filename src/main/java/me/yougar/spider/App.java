@@ -6,12 +6,36 @@ import java.rmi.server.UID;
 
 public class App {
     public static void main( String[] args ) {
+        if (args.length != 2) {
+          System.err.println("Error: Require two params");
+          return;
+        }
+
+        int start, end;
+        try {
+          start = Integer.parseInt(args[0]);
+          end = Integer.parseInt(args[1]);
+        } catch(Exception e) {
+          System.err.println(e);
+          return;
+        }
+
+        if (start <= 0 || end <= 0 || start > end) {
+          System.err.println("Error: Input params is invalid!");
+          return;
+        }
+
         Spider spider = new Spider();
         spider.setExecMillSecondsTimeInterval(1000);
-        for (int i = 1; i <= 91; i++) {
+        spider.setMaxPriority(3);
+        for (int i = start; i <= end; i++) {
           String url = String.format("http://tu.hanhande.com/scy/scy_%d.shtml", i);
-          spider.get(url, ar -> {
+          spider.get(1, url, ar -> {
             if (ar.succeeded()) {
+              if (ar.result().statusCode() != 200) {
+                spider.error(String.format("When get %s return status code %d", url, ar.result().statusCode()));
+                return;
+              }
               spider.infoLog(url);
               Elements links = spider.select(ar, "body div.main div.content ul li p a");
               links.forEach(link -> {
@@ -19,7 +43,7 @@ public class App {
                 spider.getFileSystem().mkdir(imagesFolder, ar2 -> {
                   if (ar2.succeeded()) {
                     String href = link.attr("href");
-                    spider.get(href, ar3 -> {
+                    spider.get(2, href, ar3 -> {
                       if (ar3.succeeded()) {
                         spider.infoLog(href);
                         Elements images = spider.select(ar3, "html body div.main div.content div.picshow div.picshowlist div.picshowlist_mid div.picmidmid ul#picLists li a img");
@@ -27,7 +51,7 @@ public class App {
                           String imageSrc = image.attr("src");
                           try {
                             String imageFile = imageSrc.substring(38);
-                            spider.get(imageSrc, ar4 -> {
+                            spider.get(3, imageSrc, ar4 -> {
                               if (ar4.succeeded()) {
                                 spider.infoLog(imageSrc);
                                 String file = String.format("%s/%s", imagesFolder, imageFile);

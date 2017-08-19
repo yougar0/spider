@@ -13,6 +13,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.FileSystem;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
+import java.util.ArrayList;
 
 public class Spider {
 
@@ -20,13 +21,15 @@ public class Spider {
 
   private WebClient client;
 
-  private ConcurrentLinkedQueue<Job> jobs = new ConcurrentLinkedQueue();
+  private ArrayList<ConcurrentLinkedQueue<Job>> jobs = new ArrayList();
 
   private int execMillSecondsTimeInterval;
 
   private FileSystem fs;
 
   private Logger logger = LoggerFactory.getLogger(Spider.class);
+
+  private int priority;
 
   public Spider() {
     WebClientOptions options = new WebClientOptions().setKeepAlive(true).setMaxPoolSize(5).setConnectTimeout(3000);
@@ -38,11 +41,19 @@ public class Spider {
     this.execMillSecondsTimeInterval = millSeconds;
   }
 
-  public void get(String url, Handler<AsyncResult<HttpResponse<Buffer>>> handler) {
+  public void setMaxPriority(int priority) {
+    this.priority = priority;
+    while (priority > 0) {
+      jobs.add(new ConcurrentLinkedQueue<Job>());
+      priority--;
+    }
+  }
+
+  public void get(int _priority, String url, Handler<AsyncResult<HttpResponse<Buffer>>> handler) {
     Job job = () -> {
       client.getAbs(url).send(handler);
     };
-    jobs.add(job);
+    jobs.get(_priority - 1).add(job);
   }
 
   public Elements select(AsyncResult<HttpResponse<Buffer>> ar, String selector) {
@@ -62,15 +73,41 @@ public class Spider {
   }
 
   public void run() {
-    Job job = jobs.poll();
-    while(job != null) {
-      job.handle();
+    boolean isFinished = false;
+
+    while(!isFinished) {
+      for (int level = priority - 1; level >= 0; level--) {
+        Job job = jobs.get(level).poll();
+        if (job != null) {
+          job.handle();
+          break;
+        }
+
+        if (level == 0) {
+          try {
+            Thread.sleep(4000);
+          } catch(Exception ex) {}
+
+          int _level = level;
+          while(_level < priority) {
+            Job j = jobs.get(_level).poll();
+            if ( j != null) {
+              j.handle();
+              break;
+            }
+            if (_level == priority - 1) {
+              isFinished = true;
+            }
+            _level++;
+          }
+        }
+      }
+
       try {
         Thread.sleep(execMillSecondsTimeInterval);
       } catch(Exception e) {
 
       }
-      job = jobs.poll();
     }
     logger.info("All jobs is done!");
     client.close();
