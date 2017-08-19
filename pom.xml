@@ -66,6 +66,15 @@
       <version>3.4.2</version>
     </dependency>
 
+    <!-- Rx Java -->
+    <!-- https://mvnrepository.com/artifact/io.vertx/vertx-rx-java -->
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-rx-java</artifactId>
+      <version>3.4.2</version>
+    </dependency>
+
+
     <!-- Parse HTML -->
     <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
     <dependency>
