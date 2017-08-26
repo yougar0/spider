@@ -10,3 +10,7 @@ But with callback hell.
 
 1.0.1 Version
 * Reduce memory use space
+
+1.0.2 Version
+* Avoid callback hell by moduling
+* Ensure all jobs be consumed
