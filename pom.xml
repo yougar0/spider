@@ -4,9 +4,15 @@
   <groupId>me.yougar.spider</groupId>
   <artifactId>spider</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.0-RELEASE</version>
+  <version>1.0.3-RELEASE</version>
   <name>spider</name>
   <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <java.version>1.8</java.version>
+  </properties>
 
   <build>
     <plugins>
@@ -44,6 +50,8 @@
           <archive>
             <manifest>
               <mainClass>me.yougar.spider.App</mainClass>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
             </manifest>
           </archive>
         </configuration>
@@ -66,6 +74,12 @@
       <version>3.4.2</version>
     </dependency>
 
+
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
+      <version>3.4.2</version>
+    </dependency>
 
     <!-- Parse HTML -->
     <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
