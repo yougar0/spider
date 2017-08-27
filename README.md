@@ -2,7 +2,8 @@
 A java web crawler based on vertx.
 
 ## Packaging
-Please run
+Please run:
+
     mvn dependency:copy-dependencies -DoutputDirectory=target/lib
     mvn package
 
